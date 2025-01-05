@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette Quick Play</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+        }
+
+        #game-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 20px;
+        }
+
+        #history {
+            width: 300px;
+            text-align: left;
+            background: #34495e;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #history h3 {
+            text-align: center;
+        }
+
+        #history div {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        #history div span.square {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        #roulette-wheel {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #balance {
+            font-size: 1.5em;
+            margin: 10px;
+        }
+
+        .bet-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .bet-category {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .bet-category h4 {
+            margin-bottom: 10px;
+        }
+
+        .bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .bet-buttons button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .bet-buttons button.red { background-color: #e74c3c; color: white; }
+        .bet-buttons button.black { background-color: #2c3e50; color: white; }
+        .bet-buttons button.green { background-color: #27ae60; color: white; }
+        .bet-buttons button.odd { background-color: #9b59b6; color: white; }
+        .bet-buttons button.even { background-color: #f39c12; color: white; }
+        .bet-buttons button.custom { background-color: #3498db; color: white; }
+
+        .bet-buttons button:hover {
+            filter: brightness(1.2);
+        }
+
+        #spin-result {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Roulette Quick Play</h1>
+    <div id="balance">Balance: $100</div>
+
+    <div id="game-container">
+        <div id="history">
+            <h3>Last 20 Spins</h3>
+            <div id="history-list"></div>
+        </div>
+
+        <div>
+            <div id="roulette-wheel">
+                <h2>Roulette Wheel</h2>
+                <div id="spin-result">Place your bet!</div>
+            </div>
+            <div class="bet-section">
+                <div class="bet-category">
+                    <h4>Red Bets</h4>
+                    <div class="bet-buttons">
+                        <button class="red" onclick="placeBet('red', 5)">$5</button>
+                        <button class="red" onclick="placeBet('red', 10)">$10</button>
+                        <button class="red" onclick="placeBet('red', 20)">$20</button>
+                    </div>
+                </div>
+                <div class="bet-category">
+                    <h4>Black Bets</h4>
+                    <div class="bet-buttons">
+                        <button class="black" onclick="placeBet('black', 5)">$5</button>
+                        <button class="black" onclick="placeBet('black', 10)">$10</button>
+                        <button class="black" onclick="placeBet('black', 20)">$20</button>
+                    </div>
+                </div>
+                <div class="bet-category">
+                    <h4>Green Bets</h4>
+                    <div class="bet-buttons">
+                        <button class="green" onclick="placeBet('green', 1)">$1</button>
+                        <button class="green" onclick="placeBet('green', 5)">$5</button>
+                        <button class="green" onclick="placeBet('green', 10)">$10</button>
+                    </div>
+                </div>
+                <div class="bet-category">
+                    <h4>Odd/Even Bets</h4>
+                    <div class="bet-buttons">
+                        <button class="odd" onclick="placeBet('odd', 5)">Odd $5</button>
+                        <button class="even" onclick="placeBet('even', 5)">Even $5</button>
+                    </div>
+                </div>
+                <div class="bet-category">
+                    <h4>Custom Bet</h4>
+                    <div class="bet-buttons">
+                        <button class="custom" onclick="placeBetCustom()">Custom Bet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 100;
+        let history = [];
+
+        function updateBalance() {
+            document.getElementById('balance').innerText = `Balance: $${balance}`;
+        }
+
+        function updateHistory(result, betType, betAmount, profit) {
+            history.unshift({ result, betType, betAmount, profit });
+            if (history.length > 20) history.pop();
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = history.map(entry => `
+                <div>
+                    <span class='square' style='background-color:${entry.result.color}; color: white;'>${entry.result.number}</span>
+                    ${entry.result.number} ${entry.result.color} | Bet: $${entry.betAmount} on ${entry.betType} | 
+                    <span style='color:${entry.profit >= 0 ? 'green' : 'red'}'>${entry.profit >= 0 ? '+' : ''}${entry.profit}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
