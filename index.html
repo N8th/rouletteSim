@@ -16,17 +16,20 @@
 
         #game-container {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            justify-content: center;
             align-items: flex-start;
             margin: 20px;
         }
 
         #history {
-            width: 300px;
+            width: 90%;
+            max-width: 400px;
             text-align: left;
             background: #34495e;
             padding: 10px;
             border-radius: 8px;
+            margin-bottom: 20px;
         }
 
         #history h3 {
@@ -78,13 +81,13 @@
 
         .bet-buttons {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
             gap: 10px;
         }
 
         .bet-buttons button {
             padding: 10px;
-            font-size: 1em;
+            font-size: 0.9em;
             cursor: pointer;
             border-radius: 5px;
         }
@@ -95,6 +98,8 @@
         .bet-buttons button.odd { background-color: #9b59b6; color: white; }
         .bet-buttons button.even { background-color: #f39c12; color: white; }
         .bet-buttons button.custom { background-color: #3498db; color: white; }
+        .bet-buttons button.auto { background-color: #f1c40f; color: black; }
+        .bet-buttons button.auto.active { background-color: #2ecc71; color: white; }
 
         .bet-buttons button:hover {
             filter: brightness(1.2);
@@ -103,6 +108,17 @@
         #spin-result {
             font-size: 1.2em;
             margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .bet-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -123,40 +139,9 @@
             </div>
             <div class="bet-section">
                 <div class="bet-category">
-                    <h4>Red Bets</h4>
+                    <h4>Auto Martingale</h4>
                     <div class="bet-buttons">
-                        <button class="red" onclick="placeBet('red', 5)">$5</button>
-                        <button class="red" onclick="placeBet('red', 10)">$10</button>
-                        <button class="red" onclick="placeBet('red', 20)">$20</button>
-                    </div>
-                </div>
-                <div class="bet-category">
-                    <h4>Black Bets</h4>
-                    <div class="bet-buttons">
-                        <button class="black" onclick="placeBet('black', 5)">$5</button>
-                        <button class="black" onclick="placeBet('black', 10)">$10</button>
-                        <button class="black" onclick="placeBet('black', 20)">$20</button>
-                    </div>
-                </div>
-                <div class="bet-category">
-                    <h4>Green Bets</h4>
-                    <div class="bet-buttons">
-                        <button class="green" onclick="placeBet('green', 1)">$1</button>
-                        <button class="green" onclick="placeBet('green', 5)">$5</button>
-                        <button class="green" onclick="placeBet('green', 10)">$10</button>
-                    </div>
-                </div>
-                <div class="bet-category">
-                    <h4>Odd/Even Bets</h4>
-                    <div class="bet-buttons">
-                        <button class="odd" onclick="placeBet('odd', 5)">Odd $5</button>
-                        <button class="even" onclick="placeBet('even', 5)">Even $5</button>
-                    </div>
-                </div>
-                <div class="bet-category">
-                    <h4>Custom Bet</h4>
-                    <div class="bet-buttons">
-                        <button class="custom" onclick="placeBetCustom()">Custom Bet</button>
+                        <button class="auto" id="autoMartingaleBtn" onclick="toggleAutoMartingale()">Auto Martingale</button>
                     </div>
                 </div>
             </div>
@@ -166,6 +151,8 @@
     <script>
         let balance = 100;
         let history = [];
+        let autoMartingale = false;
+        let martingaleBet = 5;
 
         function updateBalance() {
             document.getElementById('balance').innerText = `Balance: $${balance}`;
@@ -195,22 +182,30 @@
                 alert('Insufficient balance!');
                 return;
             }
-
             balance -= amount;
             updateBalance();
-            document.getElementById('spin-result').innerText = 'Spinning...';
-
             setTimeout(() => {
                 const result = spinWheel();
                 let profit = -amount;
-                if (type === result.color || (type === 'odd' && result.number % 2 !== 0) || (type === 'even' && result.number % 2 === 0)) {
+                if (type === result.color) {
                     profit = amount * 2;
                     balance += profit;
+                    martingaleBet = 5;
+                } else {
+                    martingaleBet *= 2;
                 }
-                document.getElementById('spin-result').innerText = `Result: ${result.number} ${result.color}`;
-                updateHistory(result, type, amount, profit - amount);
+                updateHistory(result, type, amount, profit);
                 updateBalance();
+                if (autoMartingale) placeBet('black', martingaleBet);
             }, 2000);
+        }
+
+        function toggleAutoMartingale() {
+            autoMartingale = !autoMartingale;
+            const button = document.getElementById('autoMartingaleBtn');
+            button.classList.toggle('active', autoMartingale);
+            button.innerText = autoMartingale ? 'Auto Martingale (Active)' : 'Auto Martingale';
+            if (autoMartingale) placeBet('black', martingaleBet);
         }
     </script>
 </body>
