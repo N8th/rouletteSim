@@ -183,6 +183,35 @@
                 </div>
             `).join('');
         }
+
+        function spinWheel() {
+            const number = Math.floor(Math.random() * 37);
+            const color = number === 0 ? 'green' : number % 2 === 0 ? 'black' : 'red';
+            return { number, color };
+        }
+
+        function placeBet(type, amount) {
+            if (balance < amount) {
+                alert('Insufficient balance!');
+                return;
+            }
+
+            balance -= amount;
+            updateBalance();
+            document.getElementById('spin-result').innerText = 'Spinning...';
+
+            setTimeout(() => {
+                const result = spinWheel();
+                let profit = -amount;
+                if (type === result.color || (type === 'odd' && result.number % 2 !== 0) || (type === 'even' && result.number % 2 === 0)) {
+                    profit = amount * 2;
+                    balance += profit;
+                }
+                document.getElementById('spin-result').innerText = `Result: ${result.number} ${result.color}`;
+                updateHistory(result, type, amount, profit - amount);
+                updateBalance();
+            }, 2000);
+        }
     </script>
 </body>
 </html>
